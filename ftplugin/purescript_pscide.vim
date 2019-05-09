@@ -140,7 +140,7 @@ com! -buffer
 com! -buffer
       \ Pend
       \ call PSCIDEend()
-com! -buffer -nargs=* -bang -complete=custom,PSCIDEcompleteIdentifier 
+com! -buffer -nargs=* -bang -complete=custom,PSCIDEcompleteIdentifier
       \ Pgoto
       \ call PSCIDEgoToDefinition(<q-bang>, len(<q-args>) ? <q-args> : PSCIDEgetKeyword())
 com! -buffer -nargs=* -complete=custom,PSCIDEcompleteIdentifier
@@ -215,11 +215,11 @@ function! PSCIDEstart(silent)
 
   let dir = purescript#ide#utils#findRoot()
   if empty(dir)
-    echom "No psc-package.json or bower.json found, couldn't start `purs ide server`"
+    echom "No psc-package.json or bower.json or spago.dhall found, couldn't start `purs ide server`"
     return
   endif
 
-  let command = [ 
+  let command = [
 	\ "purs", "ide", "server",
 	\ "-p", g:psc_ide_server_port,
 	\ "-d", dir,
@@ -276,7 +276,7 @@ function! PSCIDEend()
   call purescript#job#send(jobid, json_encode({'command': 'quit'}) . "\n")
 endfunction
 
-function! s:PSCIDEendCallback() 
+function! s:PSCIDEendCallback()
   call purescript#ide#setStarted(v:false)
   call purescript#ide#setValid(v:false)
 endfunction
@@ -397,7 +397,7 @@ function! s:PSCIDEgoToDefinitionCallback(bang, ident, resp)
   endif
   let results = []
   for res in a:resp.result
-    if empty(filter(copy(results), { idx, val -> 
+    if empty(filter(copy(results), { idx, val ->
 	  \    type(val.definedAt) == v:t_dict
 	  \ && type(res.definedAt) == v:t_dict
 	  \ && val.definedAt.name == res.definedAt.name
@@ -482,9 +482,9 @@ function! PSCIDErebuild(async, bang, ...)
   endif
 endfunction
 
-function! s:PSCIDErebuildCallback(filename, resp, silent) 
+function! s:PSCIDErebuildCallback(filename, resp, silent)
   let g:psc_ide_suggestions = {}
-  if type(a:resp) == v:t_dict && has_key(a:resp, "resultType") 
+  if type(a:resp) == v:t_dict && has_key(a:resp, "resultType")
      \ && has_key (a:resp, "result") && type(a:resp.result) == v:t_list
     let out = s:qfList(a:filename, a:resp.result, a:resp.resultType)
 
@@ -526,7 +526,7 @@ endfunction
 function! PSCIDEcwd()
   call purescript#ide#call(
 	\ {'command': 'cwd'},
-	\ "Failed to get current working directory", 
+	\ "Failed to get current working directory",
 	\ 0,
 	\ function("s:PSCIDEcwdCallback")
 	\ )
@@ -672,7 +672,7 @@ function! s:echoImport(import)
     let idx = 0
     for ident in a:import["identifiers"]
       echohl Identifier
-      echon ident 
+      echon ident
       echohl Normal
       if (idx < len - 1)
 	echon ", "
@@ -938,7 +938,7 @@ endfun
 fun! s:completeFn(findstart, base, commandFn,...)
   let completeImportLine = a:0 >= 1 ? a:1 : v:false
 
-  if a:findstart 
+  if a:findstart
     return s:findStart()
   else
 
@@ -989,8 +989,8 @@ fun! s:completeFn(findstart, base, commandFn,...)
     " sort.
     if g:psc_ide_omnicompletion_sort_by != "flex"
       call uniq(
-	    \ sort(entries, { e1, e2 -> 
-		  \ g:psc_ide_omnicompletion_sort_by == "module" 
+	    \ sort(entries, { e1, e2 ->
+		  \ g:psc_ide_omnicompletion_sort_by == "module"
 		    \ ? e1.module == e2.module
 		    \ : sort([e1.identifier, e2.identifier]) == [e2.identifier, e1.identifier]}),
 	    \ { e1, e2 -> !s:compareByDefinedAt(e1, e2) }
@@ -1072,7 +1072,7 @@ fun! s:compareByDefinedAt(e1, e2)
   endif
 endfun
 
-function! s:prefixFilter(s) 
+function! s:prefixFilter(s)
   return { "filter": "prefix", "params": { "search": a:s } }
 endfunction
 
